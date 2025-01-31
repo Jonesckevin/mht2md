@@ -5,11 +5,13 @@ import re  # For extracting and cleaning step text using regular expressions
 from email import policy  # For handling email parsing policies
 from bs4 import BeautifulSoup  # For parsing and manipulating HTML content
 from PIL import Image  # For image conversion
+import subprocess  # For running external scripts
 
 __author__ = "Kevin C. Jones"
 __email__ = "jonesckevin@proton.me"
 __site__ = "https://github.com/jonesckevin/mht2md.git"
 
+print(f"File Name: {os.path.basename(__file__)}")
 print(f"Author: {__author__}")
 print(f"Email: {__email__}")
 print(f"Site: {__site__}")
@@ -17,7 +19,9 @@ print(f"Site: {__site__}")
 ## Set the flag to convert images to PNG format. 
 # True: Convert images to PNG format
 # False: Keep images in their original format (JPEG)
-convert_to_png = True
+convert_to_png = False
+print(f"Converting to PNG is slower but produces higher quality images.")
+print(f"Convert images to PNG: {convert_to_png}")
 
 def extract_images_and_convert_to_md(mht_file, convert_to_png):
     # Get the base name of the MHT file and create an output directory
@@ -94,3 +98,8 @@ if __name__ == "__main__":
         # Process each MHT file
         for mht_file in mht_files:
             extract_images_and_convert_to_md(mht_file, convert_to_png)
+
+        # Prompt the user if they want to run the resize-images.py script
+        run_resize = input("Do you want to run the resize-images.py script to crop all the photos? (yes/no): ").strip().lower()
+        if run_resize.lower() in ['yes', 'y', 'ye', 'yeah', 'yep', 'yup', 'sure', 'ok', 'okay']:
+            subprocess.run(['python', 'resize-images.py'])

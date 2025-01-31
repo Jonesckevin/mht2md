@@ -3,6 +3,15 @@ from tkinter import Tk, filedialog, Scrollbar, Canvas, Frame, messagebox
 from PIL import Image, ImageTk
 import tkinter as tk
 
+__author__ = "Kevin C. Jones"
+__email__ = "jonesckevin@proton.me"
+__site__ = "https://github.com/jonesckevin/mht2md.git"
+
+print(f"File Name: {os.path.basename(__file__)}")
+print(f"Author: {__author__}")
+print(f"Email: {__email__}")
+print(f"Site: {__site__}")
+
 MAX_HEIGHT = 1080
 
 def resize_image(image):
@@ -12,6 +21,7 @@ def resize_image(image):
         image = image.resize((new_width, MAX_HEIGHT), Image.LANCZOS)
     return image
 
+print("Select the crop area on the image and click Confirm to crop all images in the selected folder.")
 def select_crop_area(image_path):
     try:
         root = Tk()
@@ -88,7 +98,7 @@ def crop_images_in_folder(folder_path, crop_coords, original_size, resized_size)
                     int(crop_coords[1][0] * scale_x),
                     int(crop_coords[1][1] * scale_y)
                 )
-                
+                print(f"Cropping image {filename} to {scaled_crop_coords}")
                 cropped_img = img.crop(scaled_crop_coords)
                 cropped_img.save(image_path)
     except Exception as e:
@@ -115,6 +125,7 @@ def main():
         img = resize_image(img)
         resized_size = img.size
         crop_coords = select_crop_area(first_image_path)
+        print(f"Confirming selected crop area: {crop_coords}")
         if crop_coords:
             root = Tk()
             root.title("Confirm Crop Area")
@@ -145,14 +156,17 @@ def main():
             def on_confirm():
                 crop_images_in_folder(folder_path, crop_coords, original_size, resized_size)
                 messagebox.showinfo("Success", "Images cropped successfully.")
+                print("Images cropped successfully.")
                 root.quit()
 
             def on_cancel():
                 messagebox.showinfo("Info", "Crop area selection cancelled.")
+                print("Crop area selection cancelled.")
                 root.quit()
 
             def on_close():
                 messagebox.showinfo("Info", "User stopped the GUI.")
+                print("User stopped the GUI.")
                 root.quit()
                 root.destroy()
                 exit(0)
@@ -174,3 +188,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    print("End of script.")
