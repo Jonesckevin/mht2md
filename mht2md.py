@@ -20,6 +20,7 @@ print(f"Site: {__site__}")
 # True: Convert images to PNG format
 # False: Keep images in their original format (JPEG)
 convert_to_png = False
+
 print(f"Converting to PNG is slower but produces higher quality images.")
 print(f"Convert images to PNG: {convert_to_png}")
 
@@ -102,4 +103,8 @@ if __name__ == "__main__":
         # Prompt the user if they want to run the resize-images.py script
         run_resize = input("Do you want to run the resize-images.py script to crop all the photos? (yes/no): ").strip().lower()
         if run_resize.lower() in ['yes', 'y', 'ye', 'yeah', 'yep', 'yup', 'sure', 'ok', 'okay']:
-            subprocess.run(['python', 'resize-images.py'])
+            resize_script_path = os.path.join(working_folder, 'resize-images.py')
+            if os.path.exists(resize_script_path):
+                subprocess.run(['python', resize_script_path])
+            else:
+                print(f"resize-images.py script not found in {working_folder}")

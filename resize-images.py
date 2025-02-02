@@ -85,7 +85,7 @@ def select_crop_area(image_path):
 def crop_images_in_folder(folder_path, crop_coords, original_size, resized_size):
     try:
         for filename in os.listdir(folder_path):
-            if filename.endswith((".png", ".jpg", ".jpeg")):
+            if filename.endswith((".png", ".jpg", ".jpeg", ".JPEG", ".PNG", ".JPG", ".TIFF", ".tiff")):
                 image_path = os.path.join(folder_path, filename)
                 img = Image.open(image_path)
                 
@@ -112,7 +112,7 @@ def main():
             return
         first_image_path = None
         for filename in os.listdir(folder_path):
-            if filename.endswith((".png", ".jpg", ".jpeg")):
+            if filename.endswith((".png", ".jpg", ".jpeg", ".JPEG", ".PNG", ".JPG", ".TIFF", ".tiff")):
                 first_image_path = os.path.join(folder_path, filename)
                 break
 
