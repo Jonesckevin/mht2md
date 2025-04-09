@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHT to Markdown Converter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">MHT to Markdown Converter</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload a Step Recorder MHT File</label>
+                <input class="form-control" type="file" id="file" name="file" accept=".mht" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Convert</button>
+            <a id="downloadButton" href="#" class="btn btn-success disabled" role="button" aria-disabled="true">Download</a>
+        </form>
+        <div class="mt-4 text-center">
+            <a href="/browse_output" class="btn btn-secondary">Browse Output Directory</a>
+            <a id="downloadAllButton" href="/download_all" class="btn btn-info">Download All</a>
+            <button id="purgeButton" class="btn btn-danger">Purge All Data</button>
+        </div>
+        <div id="result" class="mt-4"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            const fileInput = document.getElementById('file');
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+                const downloadButton = document.getElementById('downloadButton');
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            ${result.message}<br>
+                            <a href="${result.view_html}" target="_blank" class="btn btn-link">View Markdown as HTML</a>
+                        </div>`;
+                    downloadButton.href = result.download_data;
+                    downloadButton.classList.remove('disabled');
+                    downloadButton.setAttribute('aria-disabled', 'false');
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${result.error}</div>`;
+                    downloadButton.classList.add('disabled');
+                    downloadButton.setAttribute('aria-disabled', 'true');
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `<div class="alert alert-danger">An unexpected error occurred.</div>`;
+            }
+        });
+
+        document.getElementById('purgeButton').addEventListener('click', async function() {
+            if (confirm('Are you sure you want to purge all data? This action cannot be undone.')) {
+                try {
+                    const response = await fetch('/purge', { method: 'POST' });
+                    const result = await response.json();
+                    const resultDiv = document.getElementById('result');
+                    if (response.ok) {
+                        resultDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
+                    } else {
+                        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${result.error}</div>`;
+                    }
+                } catch (error) {
+                    document.getElementById('result').innerHTML = `<div class="alert alert-danger">An unexpected error occurred.</div>`;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
