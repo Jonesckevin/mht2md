@@ -21,3 +21,21 @@ You only need to run the script in the folder with 1 or more MHT files. The scri
 4. Run the script with the following command:
     ```sh
     python3 mht2md.py
+
+## Docker Webapp
+## Docker-Run
+    ```sh
+    cd Docker_Build
+    docker build mht2md .
+    docker run 
+    ```
+    
+## Docker Compose
+    ```yaml
+    services:
+        mht2md:
+          image: jonesckevin/mht2md:latest
+          container_name: mht2md-webapp
+          ports:
+            - 5674:80
+    ```
