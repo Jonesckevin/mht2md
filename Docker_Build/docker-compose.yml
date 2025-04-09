@@ -1,0 +1,6 @@
+services:
+    mht2md:
+      image: jonesckevin/mht2md:latest
+      container_name: mht2md-webapp
+      ports:
+        - 5674:80
