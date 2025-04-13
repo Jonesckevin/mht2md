@@ -27,7 +27,8 @@ You only need to run the script in the folder with 1 or more MHT files. The scri
 ```sh
 cd Docker_Build
 docker build mht2md .
-docker run 
+docker run -it --rm -p 6754:80 -v $(pwd):/app mht2md
+
 ```
     
 ## Docker Compose
