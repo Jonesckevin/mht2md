@@ -3,83 +3,501 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MHT to Markdown Converter</title>
+    <title>🔄 MHT to Markdown Converter v2.0</title>
+    
+    <!-- External CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+</head>
+<body>
+    <!-- Loading Overlay 
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner">
+            <div class="spinner-border text-light" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div class="loading-text mt-3">Processing your file...</div>
+        </div>
+    </div>-->
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="main-container">
+                    <!-- Header Section -->
+                    <div class="header-section">
+                        <div class="header-content">
+                            <h1 class="display-4 mb-4">
+                                <i class="fas fa-exchange-alt me-3"></i>
+                                MHT to Markdown Converter
+                            </h1>
+                            <p class="lead mb-0">
+                                Transform your .mht step recorder (psr.exe) files into readable Markdown with separated and referenced images
+                            </p>
+                            <div class="version-badge">v2.0</div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="stats-section">
+                        <div class="row">
+                            <div class="col-md-3 col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-file-upload"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="totalUploads">{{ stats.total_files or 0 }}</div>
+                                        <div class="stat-label">Files Processed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-images"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="totalImages">{{ stats.converted_files or 0 }}</div>
+                                        <div class="stat-label">Files Converted</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number" id="lastProcessed">
+                                            {% if stats.last_upload %}
+                                                {{ stats.last_upload.strftime('%m/%d') }}
+                                            {% else %}
+                                                Never
+                                            {% endif %}
+                                        </div>
+                                        <div class="stat-label">Last Processed</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="stat-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-server"></i>
+                                    </div>
+                                    <div class="stat-content">
+                                        <div class="stat-number">Online</div>
+                                        <div class="stat-label">Status</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Content -->
+                    <div class="main-content">
+                        <!-- Upload Section -->
+                        <div class="upload-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-cloud-upload-alt me-2"></i>
+                                Upload Your MHT File
+                            </h3>
+                            
+                            <form id="uploadForm" enctype="multipart/form-data" class="upload-form">
+                                <div class="upload-area" id="uploadArea">
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                        <h4>Drag & Drop Your MHT File Here</h4>
+                                        <p class="text-muted">or click to browse and select a file</p>
+                                        <input type="file" id="fileInput" name="file" accept=".mht,.mhtml" required class="d-none">
+                                        <button type="button" class="btn btn-outline-primary" onclick="document.getElementById('fileInput').click()">
+                                            <i class="fas fa-folder-open me-2"></i>
+                                            Choose File
+                                        </button>
+                                    </div>
+                                    <div class="file-info" id="fileInfo" style="display: none;">
+                                        <div class="file-details">
+                                            <i class="fas fa-file-alt file-icon"></i>
+                                            <div class="file-data">
+                                                <div class="file-name" id="fileName"></div>
+                                                <div class="file-size" id="fileSize"></div>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearFile()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Section -->
+                                <div class="progress-container" id="progressContainer" style="display: none;">
+                                    <div class="progress-info">
+                                        <span class="progress-label">Processing...</span>
+                                        <span class="progress-percentage">0%</span>
+                                    </div>
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                             role="progressbar" style="width: 0%"></div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg btn-block submit-btn">
+                                    <i class="fas fa-play me-2"></i>
+                                    Convert to Markdown
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div class="results-section" id="resultsSection" style="display: none;">
+                            <h3 class="section-title">
+                                <i class="fas fa-check-circle me-2 text-success"></i>
+                                Conversion Complete
+                            </h3>
+                            <div class="result-card">
+                                <div class="result-content" id="resultContent">
+                                    <!-- Results will be populated here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="quick-actions">
+                            <h4 class="mb-3">
+                                <i class="fas fa-bolt me-2"></i>
+                                Quick Actions
+                            </h4>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <a href="/browse_output" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-folder-open"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h6>Browse Files</h6>
+                                            <p class="mb-0">View processed files and downloads</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <a href="/status" class="action-card">
+                                        <div class="action-icon">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h6>System Status</h6>
+                                            <p class="mb-0">Built-in server health and statistics</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <a href="#" class="action-card" onclick="showHelp()">
+                                        <div class="action-icon">
+                                            <i class="fas fa-question-circle"></i>
+                                        </div>
+                                        <div class="action-content">
+                                            <h6>Help & Support</h6>
+                                            <p class="mb-0">Learn how to use the converter</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="footer-section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="footer-info">
+                                    <h6>MHT to Markdown Converter</h6>
+                                    <p class="mb-0">Powered by Docker, Python, Flask, Bootstrap, Markdown, BeautifulSoup4, Pillow, and most importantly love <i class="fas fa-heart"></i></p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-md-right">
+                                <div class="footer-links">
+                                    <a href="https://github.com/jonesckevin/mht2md" class="footer-link">
+                                        <i class="fab fa-github"></i> GitHub
+                                    </a>
+                                    <a href="/status" class="footer-link">
+                                        <i class="fas fa-info-circle"></i> Status
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal fade" id="helpModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-question-circle me-2"></i>
+                        How to Use MHT to Markdown Converter
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="help-content">
+                        <div class="help-section">
+                            <h6><i class="fas fa-upload me-2"></i>Uploading Files</h6>
+                            <ul>
+                                <li>Drag and drop your .mht or .mhtml file onto the upload area</li>
+                                <li>Or click "Choose File" to browse and select your file</li>
+                                <li>Maximum file size: 500MB</li>
+                            </ul>
+                        </div>
+                        <div class="help-section">
+                            <h6><i class="fas fa-download me-2"></i>Output</h6>
+                            <ul>
+                                <li>Converted files are packaged as a ZIP archive</li>
+                                <li>Contains the Markdown file and all extracted images</li>
+                                <li>Images are referenced correctly in the Markdown</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- External JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</head>
-<body>
-    <div class="container mt-5">
-        <h1 class="text-center">MHT to Markdown Converter</h1>
-        <form id="uploadForm" enctype="multipart/form-data">
-            <div class="mb-3">
-                <label for="file" class="form-label">Upload a Step Recorder MHT File</label>
-                <input class="form-control" type="file" id="file" name="file" accept=".mht" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Convert</button>
-            <a id="downloadButton" href="#" class="btn btn-success disabled" role="button" aria-disabled="true">Download</a>
-        </form>
-        <div class="mt-4 text-center">
-            <a href="/browse_output" class="btn btn-secondary">Browse Output Directory</a>
-            <a id="downloadAllButton" href="/download_all" class="btn btn-info">Download All</a>
-            <button id="purgeButton" class="btn btn-danger">Purge All Data</button>
-        </div>
-        <div id="result" class="mt-4"></div>
-    </div>
-
+    
     <script>
-        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
+        // Upload functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeUpload();
+        });
+
+        function initializeUpload() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const uploadForm = document.getElementById('uploadForm');
+
+            // Drag and drop events
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('drag-over');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('drag-over');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect();
+                }
+            });
+
+            fileInput.addEventListener('change', handleFileSelect);
+            uploadForm.addEventListener('submit', handleSubmit);
+        }
+
+        function handleFileSelect() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadArea = document.getElementById('uploadArea');
+
+            if (fileInput.files && fileInput.files[0]) {
+                const file = fileInput.files[0];
+                
+                if (!file.name.toLowerCase().endsWith('.mht') && !file.name.toLowerCase().endsWith('.mhtml')) {
+                    showAlert('Please select a valid MHT or MHTML file.', 'danger');
+                    return;
+                }
+
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                fileInfo.style.display = 'block';
+                uploadArea.style.borderColor = '#28a745';
+            }
+        }
+
+        function clearFile() {
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const uploadArea = document.getElementById('uploadArea');
+            
+            fileInput.value = '';
+            fileInfo.style.display = 'none';
+            uploadArea.style.borderColor = '';
+        }
+
+        function handleSubmit(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files || !fileInput.files[0]) {
+                showAlert('Please select a file to upload.', 'warning');
+                return;
+            }
+
             const formData = new FormData();
-            const fileInput = document.getElementById('file');
             formData.append('file', fileInput.files[0]);
+            uploadFile(formData);
+        }
 
-            try {
-                const response = await fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+        function uploadFile(formData) {
+            const progressContainer = document.getElementById('progressContainer');
+            const resultsSection = document.getElementById('resultsSection');
+            const submitBtn = document.querySelector('.submit-btn');
 
-                const result = await response.json();
-                const resultDiv = document.getElementById('result');
-                const downloadButton = document.getElementById('downloadButton');
+            progressContainer.style.display = 'block';
+            resultsSection.style.display = 'none';
+            submitBtn.disabled = true;
+            showLoadingOverlay(true);
 
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                updateProgress(progress);
+            }, 200);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                clearInterval(progressInterval);
+                updateProgress(100);
+                
                 if (response.ok) {
-                    resultDiv.innerHTML = `
-                        <div class="alert alert-success">
-                            ${result.message}<br>
-                            <a href="${result.view_html}" target="_blank" class="btn btn-link">View Markdown as HTML</a>
-                        </div>`;
-                    downloadButton.href = result.download_data;
-                    downloadButton.classList.remove('disabled');
-                    downloadButton.setAttribute('aria-disabled', 'false');
+                    return response.json();
                 } else {
-                    resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${result.error}</div>`;
-                    downloadButton.classList.add('disabled');
-                    downloadButton.setAttribute('aria-disabled', 'true');
+                    throw new Error('Conversion failed');
                 }
-            } catch (error) {
-                document.getElementById('result').innerHTML = `<div class="alert alert-danger">An unexpected error occurred.</div>`;
-            }
-        });
+            })
+            .then(data => {
+                setTimeout(() => {
+                    progressContainer.style.display = 'none';
+                    showLoadingOverlay(false);
+                    submitBtn.disabled = false;
+                    showResults(data);
+                }, 500);
+            })
+            .catch(error => {
+                clearInterval(progressInterval);
+                progressContainer.style.display = 'none';
+                showLoadingOverlay(false);
+                submitBtn.disabled = false;
+                showAlert('Error during conversion: ' + error.message, 'danger');
+            });
+        }
 
-        document.getElementById('purgeButton').addEventListener('click', async function() {
-            if (confirm('Are you sure you want to purge all data? This action cannot be undone.')) {
-                try {
-                    const response = await fetch('/purge', { method: 'POST' });
-                    const result = await response.json();
-                    const resultDiv = document.getElementById('result');
-                    if (response.ok) {
-                        resultDiv.innerHTML = `<div class="alert alert-success">${result.message}</div>`;
-                    } else {
-                        resultDiv.innerHTML = `<div class="alert alert-danger">Error: ${result.error}</div>`;
-                    }
-                } catch (error) {
-                    document.getElementById('result').innerHTML = `<div class="alert alert-danger">An unexpected error occurred.</div>`;
+        function updateProgress(percentage) {
+            const progressBar = document.querySelector('.progress-bar');
+            const progressPercentage = document.querySelector('.progress-percentage');
+            
+            progressBar.style.width = percentage + '%';
+            progressPercentage.textContent = Math.round(percentage) + '%';
+        }
+
+        function showLoadingOverlay(show) {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = show ? 'flex' : 'none';
+        }
+
+        function showResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultContent = document.getElementById('resultContent');
+            
+            resultContent.innerHTML = `
+                <div class="result-summary">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="result-stat">
+                                <i class="fas fa-file-alt text-primary"></i>
+                                <span class="result-label">Markdown File:</span>
+                                <span class="result-value">${data.markdown_file || 'Unknown'}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="result-stat">
+                                <i class="fas fa-images text-info"></i>
+                                <span class="result-label">Images Extracted:</span>
+                                <span class="result-value">${data.stats ? data.stats.images : 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="result-actions">
+                    <a href="${data.download_data}" class="btn btn-success btn-lg">
+                        <i class="fas fa-download me-2"></i>
+                        Download ZIP Archive
+                    </a>
+                    <button type="button" class="btn btn-outline-primary btn-lg" onclick="resetForm()">
+                        <i class="fas fa-plus me-2"></i>
+                        Convert Another File
+                    </button>
+                </div>
+            `;
+            
+            resultsSection.style.display = 'block';
+        }
+
+        function resetForm() {
+            const uploadForm = document.getElementById('uploadForm');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            uploadForm.reset();
+            clearFile();
+            resultsSection.style.display = 'none';
+        }
+
+        function showAlert(message, type = 'info') {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="close" data-dismiss="alert">
+                    <span>&times;</span>
+                </button>
+            `;
+            
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(alert, mainContent.firstChild);
+            
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
                 }
-            }
-        });
+            }, 5000);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showHelp() {
+            $('#helpModal').modal('show');
+        }
     </script>
 </body>
 </html>

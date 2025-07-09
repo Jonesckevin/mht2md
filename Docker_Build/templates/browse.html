@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Files - MHT to Markdown Converter</title>
+    <link rel="preload" href="{{ url_for('static', filename='css/shared.css') }}" as="style">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+    <style>
+        /* Browse-specific styles only */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="header-section">
+                <h1><i class="fas fa-folder-open"></i> File Browser</h1>
+                <p>Navigate and explore your converted files</p>
+            </div>
+            
+            <div class="content-section">
+                <!-- Breadcrumb Navigation -->
+                <nav class="breadcrumb-nav">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="/browse_output"><i class="fas fa-home"></i> Root</a>
+                        </li>
+                        {% if current_path %}
+                            {% set path_parts = current_path.split('/') %}
+                            {% set partial_path = '' %}
+                            {% for part in path_parts %}
+                                {% if part %}
+                                    {% set partial_path = partial_path + '/' + part %}
+                                    <li class="breadcrumb-item">
+                                        <a href="/browse_output{{ partial_path }}">{{ part }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </ol>
+                </nav>
+
+                <!-- File List -->
+                {% if links %}
+                    <div class="file-list">
+                        {% for link in links %}
+                            <a href="{{ link.path }}" class="file-item">
+                                <div class="file-icon {{ link.type }}">
+                                    <i class="{{ link.icon }}"></i>
+                                </div>
+                                <div class="file-info">
+                                    <div class="file-name">{{ link.name }}</div>
+                                    {% if link.file_type %}
+                                        <div class="file-type">{{ link.file_type }}</div>
+                                    {% endif %}
+                                </div>
+                                {% if link.type == 'file' %}
+                                    <div class="file-actions">
+                                        <i class="fas fa-chevron-right text-muted"></i>
+                                    </div>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h4>No Files Found</h4>
+                        <p>This directory is empty or no files have been processed yet.</p>
+                        <a href="/" class="btn btn-custom mt-3">
+                            <i class="fas fa-upload"></i> Convert Files
+                        </a>
+                    </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div class="text-center mt-4">
+                    <a href="/" class="btn btn-custom">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="/download_all" class="btn btn-secondary-custom ml-2">
+                        <i class="fas fa-download"></i> Download All
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.history.back();
+            } else if (e.key === 'h' && e.ctrlKey) {
+                window.location.href = '/';
+            }
+        });
+
+        // Add loading states for file operations
+        document.querySelectorAll('.file-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (this.getAttribute('href').includes('/browse_output/')) {
+                    const loadingIcon = this.querySelector('.fa-chevron-right');
+                    if (loadingIcon) {
+                        loadingIcon.className = 'fas fa-spinner fa-spin text-muted';
+                    }
+                }
+            });
+        });
+
+        // Add tooltips for better UX
+        document.querySelectorAll('[title]').forEach(element => {
+            element.setAttribute('data-toggle', 'tooltip');
+        });
+
+        // Initialize tooltips if Bootstrap is available
+        if (typeof $().tooltip === 'function') {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+    </script>
+</body>
+</html>

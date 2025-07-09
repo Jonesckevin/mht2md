@@ -3,17 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error</title>
+    <title>Error - MHT to Markdown Converter</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="alert alert-danger text-center">
-            <h1>Error</h1>
-            <p>{{ message }}</p>
-        </div>
-        <div class="text-center">
-            <a href="/" class="btn btn-primary">Back to Home</a>
+    <div class="container-fluid min-vh-100 d-flex align-items-center">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-8 col-lg-6">
+                <div class="error-container">
+                    <div class="text-center mb-4">
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h1 class="error-title">Oops! Something went wrong</h1>
+                    </div>
+                    
+                    <div class="error-content">
+                        <div class="alert alert-danger">
+                            <h5><i class="fas fa-bug me-2"></i>Error Details</h5>
+                            <p class="mb-0">{{ message }}</p>
+                        </div>
+                        
+                        <div class="error-suggestions">
+                            <h6><i class="fas fa-lightbulb me-2"></i>What you can try:</h6>
+                            <ul class="mb-0">
+                                <li>Check if your MHT file is valid and not corrupted</li>
+                                <li>Ensure the file size is under 500MB</li>
+                                <li>Try uploading a different MHT file</li>
+                                <li>Clear your browser cache and try again</li>
+                                <li>Contact support if the problem persists</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="error-actions text-center">
+                        <a href="/" class="btn btn-primary me-2">
+                            <i class="fas fa-home me-1"></i>
+                            Go Home
+                        </a>
+                        <a href="/browse_output" class="btn btn-secondary me-2">
+                            <i class="fas fa-folder me-1"></i>
+                            Browse Files
+                        </a>
+                        <button onclick="history.back()" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Go Back
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </body>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status - MHT to Markdown Converter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/shared.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <div class="header-section">
+                <h1 class="display-4 mb-3">
+                    <i class="fas fa-server me-3"></i>
+                    System Status Dashboard
+                </h1>
+                <p class="lead mb-0">Real-time monitoring and system health information</p>
+            </div>
+            
+            <div class="content-section">
+                <!-- System Health Overview -->
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-icon bg-success">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="status-title">System Health</h3>
+                        <div class="ml-auto">
+                            <span class="badge badge-success badge-status">
+                                <i class="fas fa-check-circle"></i> Healthy
+                            </span>
+                        </div>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value text-info">{{ uptime }}</div>
+                            <div class="metric-label">System Uptime</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-success">{{ total_files }}</div>
+                            <div class="metric-label">Files Processed</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-primary">{{ success_rate }}%</div>
+                            <div class="metric-label">Success Rate</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-warning">{{ disk_usage }}</div>
+                            <div class="metric-label">Disk Usage</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Application Information -->
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-icon bg-primary">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <h3 class="status-title">Application Information</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="metric-grid">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ version }}</div>
+                                    <div class="metric-label">App Version</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ max_upload_size }}</div>
+                                    <div class="metric-label">Max Upload Size</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ image_format }}</div>
+                                    <div class="metric-label">Image Format</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="metric-grid">
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ python_version }}</div>
+                                    <div class="metric-label">Python Version</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ flask_version }}</div>
+                                    <div class="metric-label">Flask Version</div>
+                                </div>
+                                <div class="metric-item">
+                                    <div class="metric-value">{{ log_level }}</div>
+                                    <div class="metric-label">Log Level</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Configuration -->
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-icon bg-warning">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                        <h3 class="status-title">Configuration</h3>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item">
+                                    <strong>Upload Directory:</strong> {{ upload_dir }}
+                                </div>
+                                <div class="list-group-item">
+                                    <strong>Output Directory:</strong> {{ output_dir }}
+                                </div>
+                                <div class="list-group-item">
+                                    <strong>Image Quality:</strong> {{ image_quality }}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="list-group list-group-flush">
+                                <div class="list-group-item">
+                                    <strong>Last Restart:</strong> {{ last_restart }}
+                                </div>
+                                <div class="list-group-item">
+                                    <strong>Debug Mode:</strong> {{ 'Enabled' if debug_mode else 'Disabled' }}
+                                </div>
+                                <div class="list-group-item">
+                                    <strong>Auto Backup:</strong> {{ 'Enabled' if auto_backup else 'Disabled' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="status-card">
+                    <div class="status-header">
+                        <div class="status-icon bg-info">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="status-title">Performance Metrics</h3>
+                    </div>
+                    <div class="metric-grid">
+                        <div class="metric-item">
+                            <div class="metric-value text-success">{{ avg_processing_time }}</div>
+                            <div class="metric-label">Avg Processing Time</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-info">{{ files_per_hour }}</div>
+                            <div class="metric-label">Files/Hour</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-warning">{{ memory_usage }}</div>
+                            <div class="metric-label">Memory Usage</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value text-primary">{{ cpu_usage }}</div>
+                            <div class="metric-label">CPU Usage</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="text-center mt-4">
+                    <a href="/" class="btn-custom me-3">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="/browse" class="btn-custom me-3">
+                        <i class="fas fa-folder"></i> Browse Files
+                    </a>
+                    <a href="javascript:window.location.reload()" class="btn-custom">
+                        <i class="fas fa-sync-alt"></i> Refresh Status
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script>
+        // Auto-refresh every 30 seconds
+        setInterval(function() {
+            // Update timestamp
+            const now = new Date();
+            document.title = `System Status (Updated: ${now.toLocaleTimeString()}) - MHT to Markdown Converter`;
+        }, 30000);
+
+        // Add smooth animations on load
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.status-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 150);
+            });
+        });
+    </script>
+</body>
+</html>
