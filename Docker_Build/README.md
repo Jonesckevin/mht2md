@@ -2,7 +2,7 @@
 
 A modern, beautiful web application for converting Windows Step Recorder MHT files to Markdown format with image extraction and enhanced viewing capabilities.
 
-## 🚀 Quick Start
+## Quick Start
 **Access** the application at [http://localhost:5674](http://localhost:5674)
 
 ### Manual Docker Build
