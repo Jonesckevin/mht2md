@@ -3,6 +3,8 @@
 ## Overview
 `mht2md.py` is a Python script designed to convert MHT (MIME HTML) files to Markdown format. This tool simplifies the process of transforming into the Markdown format.
 
+![Example Image](./example_v2.png)
+
 ## Installation and Usage
 You only need to run the script in the folder with 1 or more MHT files. The script will convert all MHT files in the folder to Markdown format. Each MHT file will be converted to a separate Markdown file in their own folder with the same name as the MHT file.
 
