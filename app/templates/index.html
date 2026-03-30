@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MHT to Markdown Converter</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5b5fc7;
+            --primary-dark: #4a4eb5;
+            --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --bg: #eef0f5;
+            --card-bg: #ffffff;
+            --text: #333;
+            --text-muted: #6c757d;
+        }
+        body {
+            background: var(--gradient);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .hero {
+            background: var(--gradient);
+            color: #fff;
+            border-radius: 1rem;
+            padding: 2.5rem 2rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 6px 24px rgba(102, 126, 234, 0.35), 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            opacity: 0.9;
+            margin-bottom: 0.25rem;
+        }
+        .hero .version {
+            font-size: 0.85rem;
+            opacity: 0.75;
+        }
+        .stat-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12), 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 0.65rem;
+            background: var(--gradient);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+        .upload-zone {
+            border: 2px dashed #c5c9d6;
+            border-radius: 0.75rem;
+            padding: 3rem 2rem;
+            text-align: center;
+            background: #f8f9fc;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+            margin-bottom: 1.25rem;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: #ededfa;
+        }
+        .upload-zone .upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+        .upload-zone h5 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .upload-zone .sub {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        .upload-zone .file-name {
+            color: var(--primary);
+            font-weight: 600;
+            margin-top: 0.75rem;
+        }
+        .btn-convert {
+            background: var(--gradient);
+            color: #fff;
+            border: none;
+            border-radius: 0.65rem;
+            padding: 0.85rem;
+            font-size: 1.05rem;
+            font-weight: 600;
+            width: 100%;
+            transition: opacity 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
+        }
+        .btn-convert:hover {
+            opacity: 0.92;
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.55);
+        }
+        .btn-convert:active {
+            transform: scale(0.99);
+        }
+        .btn-convert:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .action-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.06);
+            text-decoration: none;
+            color: var(--text);
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: block;
+        }
+        .action-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+            color: var(--text);
+            text-decoration: none;
+        }
+        .action-card .action-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 0.6rem;
+            background: var(--gradient);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            margin-bottom: 0.85rem;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        .action-card h6 {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .action-card p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin: 0;
+        }
+        .result-area .alert {
+            border-radius: 0.65rem;
+        }
+        footer {
+            margin-top: auto;
+            padding: 1.5rem 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        .main-container {
+            max-width: 960px;
+            margin: 2rem auto;
+            padding: 2rem 2rem;
+            flex: 1;
+            background: var(--bg);
+            border-radius: 1.25rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        .spinner-border-sm {
+            width: 1rem;
+            height: 1rem;
+        }
+        /* Modal / Confirmation */
+        .modal-confirm .modal-header {
+            background: var(--gradient);
+            color: #fff;
+            border-radius: 0.5rem 0.5rem 0 0;
+        }
+        .modal-confirm .btn-danger {
+            background: #dc3545;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Hero Header -->
+        <div class="hero">
+            <h1><i class="bi bi-arrow-left-right"></i> MHT to Markdown Converter</h1>
+            <p>Transform your .mht files into clean, readable Markdown with embedded images</p>
+            <span class="version">v2.0</span>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
+                <div>
+                    <div class="stat-value" id="statProcessed">-</div>
+                    <div class="stat-label">Files Processed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-file-earmark-richtext"></i></div>
+                <div>
+                    <div class="stat-value" id="statConverted">-</div>
+                    <div class="stat-label">Files Converted</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <div class="stat-value" id="statLastProcessed">-</div>
+                    <div class="stat-label">Last Processed</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="bi bi-display"></i></div>
+                <div>
+                    <div class="stat-value" id="statStatus">-</div>
+                    <div class="stat-label">Status</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <h5 class="section-title"><i class="bi bi-cloud-arrow-up"></i> Upload Your MHT File</h5>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="upload-zone" id="dropZone">
+                <div class="upload-icon"><i class="bi bi-cloud-arrow-up-fill"></i></div>
+                <h5>Drag &amp; Drop Your MHT File Here</h5>
+                <p class="sub">or click to browse and select a file</p>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="chooseBtn">
+                    <i class="bi bi-folder2-open"></i> Choose File
+                </button>
+                <input type="file" id="file" name="file" accept=".mht" required hidden>
+                <div class="file-name" id="fileName"></div>
+            </div>
+            <button type="submit" class="btn btn-convert" id="convertBtn" disabled>
+                <i class="bi bi-play-fill"></i> Convert to Markdown
+            </button>
+        </form>
+
+        <!-- Result Area -->
+        <div class="result-area mt-3" id="result"></div>
+
+        <!-- Quick Actions -->
+        <h5 class="section-title mt-4"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
+        <div class="quick-actions">
+            <a href="/browse_output" class="action-card">
+                <div class="action-icon"><i class="bi bi-folder2-open"></i></div>
+                <h6>Browse Files</h6>
+                <p>View processed files and downloads</p>
+            </a>
+            <a href="/download_all" class="action-card">
+                <div class="action-icon"><i class="bi bi-cloud-arrow-down"></i></div>
+                <h6>Download All</h6>
+                <p>Download all processed files as ZIP</p>
+            </a>
+            <a href="#" class="action-card" id="purgeCard">
+                <div class="action-icon" style="background: linear-gradient(135deg, #e74c3c, #c0392b);"><i class="bi bi-trash3"></i></div>
+                <h6>Purge All Data</h6>
+                <p>Remove all uploaded and processed files</p>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="main-container d-flex justify-content-between align-items-center py-0">
+            <div>
+                <strong>MHT to Markdown Converter</strong><br>
+                Powered by Python, Flask &amp; Bootstrap
+            </div>
+            <div>
+                <a href="https://github.com/jonesckevin/mht2md.git" target="_blank"><i class="bi bi-github"></i> GitHub</a>
+                <span class="mx-2">|</span>
+                <a href="/stats"><i class="bi bi-info-circle"></i> Status</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Purge Confirmation Modal -->
+    <div class="modal fade modal-confirm" id="purgeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle"></i> Confirm Purge</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to purge all data? This action cannot be undone.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmPurge"><i class="bi bi-trash3"></i> Purge</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- Stats ---
+        async function loadStats() {
+            try {
+                const res = await fetch('/stats');
+                const data = await res.json();
+                document.getElementById('statProcessed').textContent = data.files_processed;
+                document.getElementById('statConverted').textContent = data.files_converted;
+                document.getElementById('statLastProcessed').textContent = data.last_processed;
+                document.getElementById('statStatus').textContent = data.status;
+            } catch {
+                document.getElementById('statStatus').textContent = 'Offline';
+            }
+        }
+        loadStats();
+
+        // --- File Upload / Drag & Drop ---
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('file');
+        const chooseBtn = document.getElementById('chooseBtn');
+        const convertBtn = document.getElementById('convertBtn');
+        const fileNameEl = document.getElementById('fileName');
+
+        chooseBtn.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('click', (e) => {
+            if (e.target === dropZone || e.target.closest('.upload-icon') || e.target.closest('h5') || e.target.closest('.sub'))
+                fileInput.click();
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                fileNameEl.textContent = fileInput.files[0].name;
+                convertBtn.disabled = false;
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            dropZone.addEventListener(evt, (e) => { e.preventDefault(); dropZone.classList.remove('dragover'); });
+        });
+        dropZone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length && files[0].name.endsWith('.mht')) {
+                fileInput.files = files;
+                fileNameEl.textContent = files[0].name;
+                convertBtn.disabled = false;
+            }
+        });
+
+        // --- Upload / Convert ---
+        document.getElementById('uploadForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            convertBtn.disabled = true;
+            convertBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Converting...';
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                            <div>
+                                ${result.message}
+                                <div class="mt-2">
+                                    <a href="${result.view_html}" target="_blank" class="btn btn-sm btn-outline-success me-2">
+                                        <i class="bi bi-eye"></i> View HTML
+                                    </a>
+                                    <a href="${result.download_data}" class="btn btn-sm btn-success">
+                                        <i class="bi bi-download"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>`;
+                    loadStats();
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            <div>Error: ${result.error}</div>
+                        </div>`;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        <div>An unexpected error occurred.</div>
+                    </div>`;
+            }
+            convertBtn.disabled = false;
+            convertBtn.innerHTML = '<i class="bi bi-play-fill"></i> Convert to Markdown';
+        });
+
+        // --- Purge ---
+        const purgeModal = new bootstrap.Modal(document.getElementById('purgeModal'));
+        document.getElementById('purgeCard').addEventListener('click', (e) => {
+            e.preventDefault();
+            purgeModal.show();
+        });
+        document.getElementById('confirmPurge').addEventListener('click', async () => {
+            purgeModal.hide();
+            try {
+                const response = await fetch('/purge', { method: 'POST' });
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success d-flex align-items-center gap-2">
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                            <div>${result.message}</div>
+                        </div>`;
+                    loadStats();
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-danger d-flex align-items-center gap-2">
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                            <div>Error: ${result.error}</div>
+                        </div>`;
+                }
+            } catch {
+                document.getElementById('result').innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center gap-2">
+                        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        <div>An unexpected error occurred.</div>
+                    </div>`;
+            }
+        });
+    </script>
+</body>
+</html>

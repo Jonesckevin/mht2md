@@ -25,8 +25,8 @@ You only need to run the script in the folder with 1 or more MHT files. The scri
 ## Docker Webapp
 ## Docker-Run
 ```sh
-cd Docker_Build
-docker build mht2md .
+cd app
+docker build -t mht2md .
 docker run -it --rm -p 6754:80 -v $(pwd):/app mht2md
 
 ```
@@ -35,6 +35,8 @@ docker run -it --rm -p 6754:80 -v $(pwd):/app mht2md
 ```yaml
 services:
     mht2md:
+      build:
+        context: ./app
       image: jonesckevin/mht2md:latest
       container_name: mht2md-webapp
       ports:

@@ -1,5 +1,7 @@
 services:
     mht2md:
+      build:
+        context: ./app
       image: jonesckevin/mht2md:latest
       container_name: mht2md-webapp
       ports:
