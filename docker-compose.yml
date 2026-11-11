@@ -5,4 +5,18 @@ services:
       image: jonesckevin/mht2md:latest
       container_name: mht2md-webapp
       ports:
-        - 5674:80
+        - 5674:8080
+      security_opt:
+        - no-new-privileges:true
+      tmpfs:
+        - /tmp:mode=1777
+      volumes:
+        - ./uploads:/app/uploads
+        - ./app/templates:/app/templates:ro
+      restart: unless-stopped
+      deploy:
+        resources:
+          limits:
+            cpus: "1.0"
+            memory: 1G
+            pids: 512

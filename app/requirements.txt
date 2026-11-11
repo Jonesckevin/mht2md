@@ -1,6 +1,8 @@
 markdown
 html2text
-beautifulsoup4
-Pillow
+beautifulsoup4>=4.13.0
+Pillow>=12.3.0
+wheel>=0.46.2
+jaraco.context>=6.1.0
 Flask
 Flask-Caching
